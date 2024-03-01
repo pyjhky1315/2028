@@ -1,0 +1,136 @@
+  application.mk的作用：
+用来配置本地开发工具NDK（native development kit）项目的构建参数和选项的文件。NDK是一个工具集
+，里面是应用与C、C++代码。这里可以指定一些项目级别的配置选项，如指定编译器，链接器等。
+
+
+指定编译器在编译源代码时应该搜索的文件。
+-I 表示在搜索头文件时要包含指定的路径。如第一行代表要搜索。./config的头文件。
+INCLUDES += -I./config
+INCLUDES += -I./release的意思：
+
+
+定义变量存储源文件的，
+SRC_C =       //存储C语言类型源文件
+DRAM_C =       //存储汇编语言
+SRC_OS =        //存储操作系统相关源文件
+SRC_S =           //存储其他类型源文件
+
+
+将以下追加（+=）放到c文件放到SRC_C，
+#apps
+SRC_C += ./apps/belon/belon.c
+SRC_C += ./apps/dut/dut_tcp_c.c
+SRC_C += ./apps/dut/dut_tcp_s.c
+SRC_C += ./apps/dut/dut_udp.c
+SRC_C += ./apps/protobuf/pb_common.c
+SRC_C += ./apps/protobuf/pb_decode.c
+SRC_C += ./apps/protobuf/pb_encode.c
+SRC_C += ./apps/protobuf/test.pb.c
+
+
+包含文件，- 表示的时忽略错误（加入文件不存在或者无法读取的情况）
+# Beken SDK include folder and source file list
+-include ./beken378/beken_src.mk
+
+
+将SRC_C的每个.c文件替换成.o文件(放在OBJ_DIR目录下)
+190 # Generate obj list
+191 # -------------------------------------------------------------------
+192 OBJ_LIST = $(SRC_C:%.c=$(OBJ_DIR)/%.o)      
+193 DEPENDENCY_LIST = $(SRC_C:%.c=$(OBJ_DIR)/%.d)
+194
+195 OBJ_S_LIST = $(SRC_S:%.S=$(OBJ_DIR)/%.O)
+196 DEPENDENCY_S_LIST = $(SRC_S:%.S=$(OBJ_DIR)/%.d)
+197
+198 OBJ_OS_LIST = $(SRC_OS:%.c=$(OBJ_DIR)/%.marm.o)
+199 DEPENDENCY_OS_LIST = $(SRC_OS:%.c=$(OBJ_DIR)/%.d)
+200
+201 OBJ_BLE_LIST = $(SRC_BLE_C:%.c=$(OBJ_DIR)/%.o)
+202 DEPENDENCY_LIST += $(SRC_BLE_C:%.c=$(OBJ_DIR)/%.d)
+
+
+根据不同的soc设置不同的文件名称
+
+231 ifeq ($(CFG_SOC_NAME), 1)
+232 SOC_NAME_ELF = beken7231.elf
+233 SOC_NAME_BIN = beken7231.bin
+234 SOC_NAME_MAP = beken7231.map
+235 SOC_NAME_LDS = bk7231.ld
+236 SOC_NAME_BSP_LDS = bk7231_bsp.ld
+237 else ifeq ($(CFG_SOC_NAME), 2)
+238 SOC_NAME_ELF = beken7231u.elf
+239 SOC_NAME_BIN = beken7231u.bin
+240 SOC_NAME_MAP = beken7231u.map
+241 SOC_NAME_LDS = bk7231.ld
+242 SOC_NAME_BSP_LDS = bk7231_bsp.ld
+243 else ifeq ($(CFG_SOC_NAME), 3)
+244 SOC_NAME_ELF = beken7251.elf
+245 SOC_NAME_BIN = beken7251.bin
+246 SOC_NAME_MAP = beken7251.map
+247 SOC_NAME_LDS = bk7231.ld
+248 SOC_NAME_BSP_LDS = bk7231_bsp.ld
+249 else ifeq ($(CFG_SOC_NAME), 5)
+250 SOC_NAME_ELF = beken2028n.elf
+251 SOC_NAME_BIN = beken2028n.bin
+252 SOC_NAME_MAP = beken2028n.map
+253 SOC_NAME_LDS = bl2028n.lds
+254 SOC_NAME_BSP_LDS = bl2028n_bsp.lds
+255 endif
+256 SOC_NAME_BSP_ELF = beken7231_bsp.elf
+257 SOC_NAME_BSP_BIN = beken7231_bsp.bin
+258 SOC_NAME_BSP_MAP = beken7231_bsp.map
+
+
+将当前变量WOLFSSL_CFLAGS的值追加到CDLAGS变量中，以便在编译过程中使用这些值
+287 CFLAGS += $(WOLFSSL_CFLAGS)
+
+
+表示目标application的依赖，在构建application之前会先构建这些依赖
+ application: $(OBJ_LIST) $(OBJ_S_LIST) $(OBJ_OS_LIST) $(WPA_LIB) $(RWNX_LIB) $(USB_LIB) $(SENSOR_LIB)  $(BLE_LIB) $(CAL_LIB)     $(SUPPLICANT_LIB) $(UART_DEBUG_LIB) $(RF_TEST_LIB) $(RF_USE_LIB)
+316
+
+
+ble,usb,sensor,cal,supplicant,uart_debug,rf_test,rf_use分别表示蓝牙，usb，传感器，校准，认证，串口调试，射频调试
+视频使用
+: $(RF_TEST_LIB)表示以来的文件
+ $(SUPPLICANT_LIB): $(OBJ_SUPPLICANT_LIST)表示依赖
+  $(Q)$(ECHO) "  $(GREEN)AR   $@$(NC)"
+387         $(Q)$(AR) -rcs $@ $^表示生成文件的规则等等
+ip: $(RWNX_LIB)
+338
+339 $(RWNX_LIB): $(OBJ_RWNX_LIST)
+340         $(Q)$(ECHO) "  $(GREEN)AR   $@$(NC)"
+341         $(Q)$(AR) -rcs $@ $^
+342
+343 $(WPA_LIB): $(OBJ_WPA_LIST)
+344         $(Q)$(ECHO) "  $(GREEN)AR   $@$(NC)"
+345         $(Q)$(AR) -rcs $@ $^
+346
+347 usb: $(USB_LIB)
+348
+349 $(USB_LIB): $(OBJ_USB_LIST)
+350         $(Q)$(ECHO) "  $(GREEN)AR   $@$(NC)"
+351         $(Q)$(AR) -rcs $@ $^
+352
+353 sensor: $(SENSOR_LIB)
+354
+355 $(SENSOR_LIB): $(OBJ_SENSOR_LIST)
+356         $(Q)$(ECHO) "  $(GREEN)AR   $@$(NC)"
+357         $(Q)$(AR) -rcs $@ $^
+358
+359 cal: $(CAL_LIB)
+360
+361 $(CAL_LIB): $(OBJ_CAL_LIST)
+362         $(Q)$(ECHO) "  $(GREEN)AR   $@$(NC)"
+363         $(Q)$(AR) -rcs $@ $^
+
+
+.PHONY:clean   |  .PHONY:cleanlib  :表示这些不是指特定的文件，而是清理操作
+
+
+ECHO表示输出done，(GREEN)表示输出文本的颜色，（NC)也是表示输出文本内容的一些设置
+         @$(ECHO) "$(GREEN)Done$(NC)"
+
+
+rm表示递归删除文件，rf表示强制删除而不需要进行提示
+  $(Q)-rm -rf $(TARGET)
