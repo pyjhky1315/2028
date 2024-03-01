@@ -1,0 +1,38 @@
+输入字符串可以返回字符的长度
+extern UINT32 os_strlen(const char *str);
+
+
+接收一个字符串hex,将他放进buf中，并且可以计算长度，返回值可以确定成功与否
+extern int hexstr2bin(const char *hex, u8 *buf, size_t len);
+
+
+第一个是指向字符数据的指针，用于存储需要写入的数据。第二个是存储在buffer的数据长度。第三个是传递
+给程序命令行参数的个数。第四个是存储指针字符数组的指针，存储指向每个命令行参数的指针。
+dut_socket_sent_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv){}
+
+
+第一个参数是接收的十六进制字符串，将其转化为二进制的数据存储到buf，并计算长都。返回数据int判断成功与否
+dut_socket_sent_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+
+发送命令设置：包含设置TCP C/S或UDP类型和和数据长度
+
+->和.的区别。首先.是直接访问结构体的成员，->是通过结构体或联合体的方式访问结构体成员
+
+
+表示无效的套接字，在C语言的宏定义数值为-1.
+INVALID_SOCKET
+
+
+表示套接字描述符，在网络编程中，每个套接字打开都会有一个对应的套接字字符。
+INVALID_SOCKET
+
+将源字符串in复制到out，并返回目标字符串的地址
+extern char *os_strcpy(char *out, const char *in);
+
+
+存储服务器IP和端口的地方，前面执行了  dut_conf_p server_msg = (dut_conf_p)parameter;
+相当于访问结构体dut_conf_p的ip和port
+server_msg->ip,server_msg->port)
+
+
+
